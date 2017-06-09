@@ -15,7 +15,7 @@ Module.register("MMM-Nest",{
 		thermNum: "",			//Which thermostat to show in visual mode
 		protectNum: "",			//Which protect to show in visual mode
 		displayType: "visual",		//Show a visual representation or list: "visual", "list"
-		displayMode: "both",		//What to show: "nest", "protect", or "both"
+		displayMode: "all",		//What to show: "nest", "protect", "cam" or "all"
 		units: config.units,
 		updateInterval: 60 * 1000, // updates every minute per Nest's recommendation
 		animationSpeed: 2 * 1000,
@@ -40,7 +40,7 @@ Module.register("MMM-Nest",{
 		this.chosenProt = 0;
 		this.numberTherms = 1;
 		this.numberProtects = 1;
-                this.numberCams = 1;
+                this.numberCameras = 1;
 
 		this.thermName = [];
 		this.ambientTemp = [];
@@ -59,6 +59,7 @@ Module.register("MMM-Nest",{
 		this.batteryHealth = [];
 		this.uiColor = [];
 
+                this.camURL = [];
 	},
 
 	// Override dom generator.
@@ -128,7 +129,7 @@ Module.register("MMM-Nest",{
                         row.appendChild(humidityCell);
 			table.appendChild(row);
 		   } 
-		   if (this.config.displayMode === "both" && this.numberProtects > 0) {
+		   if (this.config.displayMode === "all" && this.numberProtects > 0) {
 			var breakLine = document.createElement("br");
 			table.appendChild(breakLine);
 		   }
@@ -241,7 +242,7 @@ Module.register("MMM-Nest",{
 		   	fan.className = "fanIcon";
 		   	wrapper.appendChild(fan);
 		   }
-		 } if (this.config.displayMode === "both") {
+		 } if (this.config.displayMode === "all") {
 		   var protectRing = document.createElement("div");
 		   protectRing.className = this.uiColor[this.chosenProt] + "Both";
 		   wrapper.appendChild(protectRing);
@@ -321,10 +322,10 @@ Module.register("MMM-Nest",{
 	   } else {
 	   	this.numberProtects = Object.keys(data.smoke_co_alarms).length;
 	   }
-	   if(!data.cams) {
-		this.numberCams=0;
+	   if(!data.cameras) {
+		this.numberCameras=0;
 	   } else {
-	   	this.numberCams = Object.keys(data.cams).length;
+	   	this.numberCameras = Object.keys(data.cameras).length;
 	   }
         
 
@@ -385,10 +386,16 @@ Module.register("MMM-Nest",{
                 if (this.numberProtects > 1) {
                    this.chosenProt = this.config.protectNum - 1;
                 }
+           } if ( (this.config.displayMode == "cam" || this.config.displayMode == "all") && this.numberCameras > 0) {
+                for (i = 0; i < this.numberCameras; i++) {
+                   var keyVar = Object.keys(data.cameras)[i];
+                   console.log("cams: " + i + " " + "web_url:" + data.cameras[keyVar].web_url);
+                   this.camURL[i] = data.cameras[keyVar].web_url;
+                }
            }
 	   this.loaded = true;
-	   if( this.numberProtects == 0 && this.numberTherms == 0 ) {
-		this.debugVar = "It looks like there are no Thermostats or Protects in this account.";
+	   if( this.numberProtects == 0 && this.numberTherms == 0 && this.numberCameras == 0) {
+		this.debugVar = "It looks like there are no Thermostats, Cams or Protects in this account.";
 	   } else {
               this.debugVar = "";
            }
