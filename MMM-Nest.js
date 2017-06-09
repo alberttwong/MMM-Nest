@@ -40,6 +40,7 @@ Module.register("MMM-Nest",{
 		this.chosenProt = 0;
 		this.numberTherms = 1;
 		this.numberProtects = 1;
+                this.numberCams = 1;
 
 		this.thermName = [];
 		this.ambientTemp = [];
@@ -320,6 +321,12 @@ Module.register("MMM-Nest",{
 	   } else {
 	   	this.numberProtects = Object.keys(data.smoke_co_alarms).length;
 	   }
+	   if(!data.cams) {
+		this.numberCams=0;
+	   } else {
+	   	this.numberCams = Object.keys(data.cams).length;
+	   }
+        
 
 	   //If the user is using nest/protect view mode and there is more than 1, show the user
 	   if (((this.numberTherms > 1 && this.config.thermNum == "") || (this.numberProtects > 1 && this.config.protectNum === "")) && this.config.displayType !== "list") {
